@@ -1,4 +1,5 @@
-import { env, ProcessEventsHandler } from "./config";
+import { ProcessEventsHandler } from "@gccunha015/process-events-handler";
+import { env } from "./config";
 import { app } from "./app";
 import { mongoClient } from "./database";
 

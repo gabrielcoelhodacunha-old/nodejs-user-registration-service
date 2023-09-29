@@ -11,7 +11,7 @@ app.use(
     _request: Request,
     response: Response,
     _next: NextFunction
-  ) => {
+  ): void => {
     response.status(500).send(error.stack);
   }
 );
