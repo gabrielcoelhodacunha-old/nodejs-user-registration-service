@@ -1,6 +1,6 @@
 import { env as ENV } from "node:process";
 import "dotenv/config";
-import { Env } from "./types";
+import { Env } from "../types";
 
 export const env: Env = {
   APP_NAME: "nodejs-user-registration-service",
