@@ -1,12 +1,8 @@
-@baseUrl = http://localhost:3000
-
-###
+@protocol = {{$dotenv PROTOCOL}}
+@host = {{$dotenv HOST}}
+@port = {{$dotenv PORT}}
+@baseUrl = {{protocol}}://{{host}}:{{port}}
 @users = {{baseUrl}}/users
-GET {{users}}
-
-###
-@userId = a9ad9952-e3bf-4e02-a586-f68805628514
-GET {{users}}/{{userId}}
 
 ###
 POST {{users}}

@@ -1,9 +1,11 @@
 import { NextFunction, Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
-import { env } from "../../config";
-import { uuidSchema } from "../../utils";
-import { IUsersController, IUsersService } from "./types";
-import { createUserDtoTransform } from "./zod-parsers";
+import { env } from "./config";
+import {
+  IUsersService,
+  IUsersController,
+  createUserDtoTransform,
+} from "./types";
 import { usersService } from "./service";
 
 export class UsersController implements IUsersController {
@@ -12,33 +14,6 @@ export class UsersController implements IUsersController {
 
   constructor(service: IUsersService = usersService) {
     this._service = service;
-  }
-
-  async findById(
-    request: Request,
-    response: Response,
-    next: NextFunction
-  ): Promise<void> {
-    try {
-      const id = await uuidSchema.parseAsync(request.params.id);
-      const findUserDto = await this._service.findById(id);
-      response.status(StatusCodes.OK).json(findUserDto);
-    } catch (error) {
-      next(error);
-    }
-  }
-
-  async findAll(
-    _request: Request,
-    response: Response,
-    next: NextFunction
-  ): Promise<void> {
-    try {
-      const findUserDtos = await this._service.findAll();
-      response.status(StatusCodes.OK).json(findUserDtos);
-    } catch (error) {
-      next(error);
-    }
   }
 
   async create(

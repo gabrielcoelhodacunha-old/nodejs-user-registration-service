@@ -1,4 +1,4 @@
-name: registration
+name: nodejs_services
 
 services:
   mongo:
@@ -9,7 +9,7 @@ services:
     ports:
       - ${MONGO_HOST_PORT}:${MONGO_CONTAINER_PORT}
 
-  # node:
+  # user_registration:
   #   build: node
   #   env_file: node/.env
   #   ports:
