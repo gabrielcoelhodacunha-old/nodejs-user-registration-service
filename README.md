@@ -62,6 +62,7 @@ REST API service to register users.
 - [LinkedIn icon][linkedin-brand] by [LinkedIn]
 - [MongoDB icon][mongodb-press-kit] by [MongoDB]
 - [Node.js][icons8-nodejs], [Docker][icons8-docker] and [Computer][icons8-computer] icons by [Icons8]
+- [BDD in Action - Behavior-Driven Development for the whole software lifecycle][bdd-in-action]
 
 <p align="right">(<a href="#nodejs-user-registration-service">back to top ⬆️</a>)</p>
 
@@ -86,3 +87,4 @@ REST API service to register users.
 [icons8-nodejs]: https://icons8.com/icon/hsPbhkOH4FMe/node-js
 [icons8-docker]: https://icons8.com/icon/cdYUlRaag9G9/docker
 [icons8-computer]: https://icons8.com/icon/Qh2tCGOAtV52/workstation
+[bdd-in-action]: https://www.manning.com/books/bdd-in-action
