@@ -1,23 +1,25 @@
 import { Collection, UUID } from "mongodb";
 import { database } from "./database";
-import { IUsersRepository, User } from "./types";
+import { IUsersRepository, IUsersRepositoryOptions, User } from "./types";
 
 export class UsersRepository implements IUsersRepository {
-  private readonly _usersCollection: Collection<User>;
+  private readonly _collection: Collection<User>;
 
   constructor(
-    usersCollection: Collection<User> = database.collection<User>("users")
+    { collection }: IUsersRepositoryOptions = {
+      collection: database.collection<User>("users"),
+    }
   ) {
-    this._usersCollection = usersCollection;
+    this._collection = collection;
   }
 
   async create(newUser: User): Promise<User> {
-    await this._usersCollection.insertOne(newUser);
+    await this._collection.insertOne(newUser);
     return this._findById(newUser.external_id);
   }
 
   private async _findById(id: UUID): Promise<User> {
-    const user = await this._usersCollection.findOne<User>(
+    const user = await this._collection.findOne<User>(
       { external_id: id },
       { projection: { _id: 0 } }
     );
