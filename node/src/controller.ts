@@ -5,6 +5,7 @@ import {
   IUsersService,
   IUsersController,
   createUserDtoTransform,
+  IUsersControllerOptions,
 } from "./types";
 import { usersService } from "./service";
 
@@ -12,7 +13,9 @@ export class UsersController implements IUsersController {
   private readonly _baseUrl = `${env.BASE_URL}/users`;
   private readonly _service: IUsersService;
 
-  constructor(service: IUsersService = usersService) {
+  constructor(
+    { service }: IUsersControllerOptions = { service: usersService }
+  ) {
     this._service = service;
   }
 

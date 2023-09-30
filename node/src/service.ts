@@ -3,6 +3,7 @@ import {
   FindUserDto,
   IUsersRepository,
   IUsersService,
+  IUsersServiceOptions,
   findUserDtoTransform,
   userObject,
 } from "./types";
@@ -11,7 +12,9 @@ import { usersRepository } from "./repository";
 export class UsersService implements IUsersService {
   private readonly _repository: IUsersRepository;
 
-  constructor(repository: IUsersRepository = usersRepository) {
+  constructor(
+    { repository }: IUsersServiceOptions = { repository: usersRepository }
+  ) {
     this._repository = repository;
   }
 
