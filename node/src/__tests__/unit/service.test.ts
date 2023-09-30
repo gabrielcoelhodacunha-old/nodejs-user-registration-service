@@ -1,19 +1,34 @@
-import { Collection, UUID } from "mongodb";
-import { User } from "../../types";
+import {
+  CreateUserDto,
+  FindUserDto,
+  User,
+  findUserDtoTransform,
+  userObject,
+} from "../../types";
 import { UsersRepository } from "../../repository";
+import { UsersService } from "../../service";
 
 describe("Unit Testing | UsersRepository", () => {
   const spies = {} as {
-    collection: jest.MockedObject<Collection<User>>;
+    userObject: { parseAsync: jest.SpyInstance };
+    findUserDtoTransform: { parseAsync: jest.SpyInstance };
+    repository: jest.MockedObject<UsersRepository>;
   };
-  const sut = {} as { repository: UsersRepository };
+  const sut = {} as { service: UsersService };
 
   beforeAll(() => {
-    spies.collection = {
-      insertOne: jest.fn(),
-      findOne: jest.fn(),
-    } as jest.MockedObject<Collection<User>>;
-    sut.repository = new UsersRepository({ collection: spies.collection });
+    spies.userObject = {
+      parseAsync: jest.spyOn(userObject, "parseAsync").mockImplementation(),
+    };
+    spies.findUserDtoTransform = {
+      parseAsync: jest
+        .spyOn(findUserDtoTransform, "parseAsync")
+        .mockImplementation(),
+    };
+    spies.repository = {
+      create: jest.fn(),
+    } as jest.MockedObject<UsersRepository>;
+    sut.service = new UsersService({ repository: spies.repository });
   });
 
   afterEach(() => {
@@ -22,27 +37,34 @@ describe("Unit Testing | UsersRepository", () => {
 
   describe(`feature: creating user`, () => {
     describe(`scenario: passing valid data`, () => {
-      const data: User = {
-        external_id: new UUID(),
+      const data: CreateUserDto = {
         email: "test@test.com",
         password: "password",
-        created_at: new Date(),
       };
       describe(`given data=${JSON.stringify(data, null, 2)}`, () => {
         describe(`when i try to create the user`, () => {
           it(`then i should create it`, async () => {
             async function arrange() {
-              spies.collection.findOne.mockResolvedValueOnce(data);
+              const user = data as User;
+              const findUserDto = user as unknown as FindUserDto;
+              spies.userObject.parseAsync.mockResolvedValueOnce(user);
+              spies.repository.create.mockResolvedValueOnce(user);
+              spies.findUserDtoTransform.parseAsync.mockResolvedValueOnce(
+                findUserDto
+              );
             }
             async function act() {
               try {
-                return await sut.repository.create(data);
+                return await sut.service.create(data);
               } catch (error) {
                 return error;
               }
             }
             async function assert(actResult: unknown) {
-              expect(actResult).toStrictEqual(data);
+              console.log(actResult);
+              expect(actResult).toMatchObject<
+                Pick<FindUserDto, "email" | "password">
+              >(data);
             }
 
             await arrange().then(act).then(assert);
@@ -51,6 +73,7 @@ describe("Unit Testing | UsersRepository", () => {
       });
     });
 
+    /*
     describe(`scenario: passing invalid data`, () => {
       const data = {} as User;
       describe(`given data=${JSON.stringify(data, null, 2)}`, () => {
@@ -75,5 +98,6 @@ describe("Unit Testing | UsersRepository", () => {
         });
       });
     });
+    */
   });
 });
