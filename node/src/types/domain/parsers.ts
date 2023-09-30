@@ -19,7 +19,6 @@ export const createUserDtoTransform = userObject
   .pick({
     email: true,
     password: true,
-    roles: true,
   })
   .transform(async ({ password, ...rest }) => ({
     password: await hashString(password),

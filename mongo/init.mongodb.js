@@ -1,16 +1,6 @@
 use("nodejs_services");
 
 // Users
-function uuidBsonType() {
-  return {
-    bsonType: "binData",
-    properties: {
-      subType: {
-        enum: ["04"],
-      },
-    },
-  };
-}
 db.createCollection("users", {
   validator: {
     $jsonSchema: {
@@ -31,5 +21,17 @@ db.createCollection("users", {
     },
   },
 });
-db.users.createIndex({ email: 1 }, { unique: true });
 db.users.createIndex({ external_id: 1 }, { unique: true });
+db.users.createIndex({ email: 1 }, { unique: true });
+
+// Utility functions
+function uuidBsonType() {
+  return {
+    bsonType: "binData",
+    properties: {
+      subType: {
+        enum: ["04"],
+      },
+    },
+  };
+}
