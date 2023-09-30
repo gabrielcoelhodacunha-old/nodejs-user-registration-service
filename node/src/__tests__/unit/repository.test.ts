@@ -3,7 +3,9 @@ import { User } from "../../types";
 import { UsersRepository } from "../../repository";
 
 describe("Unit Testing | UsersRepository", () => {
-  const spies = {} as { collection: jest.MockedObject<Collection<User>> };
+  const spies = {} as {
+    collection: jest.MockedObject<Collection<User>>;
+  };
   const sut = {} as { repository: UsersRepository };
 
   beforeAll(() => {
@@ -11,10 +13,10 @@ describe("Unit Testing | UsersRepository", () => {
       {
         insertOne: jest.fn(),
         findOne: jest.fn(),
-      } as unknown as Collection<User>,
+      } as jest.MockedObject<Collection<User>>,
       { shallow: true }
     );
-    sut.repository = new UsersRepository(spies.collection);
+    sut.repository = new UsersRepository({ collection: spies.collection });
   });
 
   afterEach(() => {
