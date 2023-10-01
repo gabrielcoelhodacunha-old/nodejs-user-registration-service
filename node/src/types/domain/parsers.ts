@@ -1,21 +1,21 @@
 import { z } from "zod";
 import {
   hashString,
-  dateSchema,
-  emailSchema,
-  mongoUuidSchema,
+  dateParser,
+  emailParser,
+  mongoUuidParser,
 } from "../../utils";
 
-export const userObject = z
+export const userParser = z
   .object({
-    external_id: mongoUuidSchema,
-    email: emailSchema,
+    external_id: mongoUuidParser,
+    email: emailParser,
     password: z.string().min(8),
-    created_at: dateSchema,
+    created_at: dateParser,
   })
   .strict();
 
-export const createUserDtoTransform = userObject
+export const createUserDtoParser = userParser
   .pick({
     email: true,
     password: true,
@@ -25,7 +25,7 @@ export const createUserDtoTransform = userObject
     ...rest,
   }));
 
-export const findUserDtoTransform = userObject.transform(
+export const findUserDtoParser = userParser.transform(
   ({ external_id: id, created_at: createdAt, ...rest }) => ({
     id: id.toHexString(),
     ...rest,

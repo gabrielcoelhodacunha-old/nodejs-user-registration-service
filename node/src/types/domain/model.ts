@@ -1,4 +1,4 @@
 import { z } from "zod";
-import { userObject } from "./parsers";
+import { userParser } from "./parsers";
 
-export type User = z.infer<typeof userObject>;
+export type User = z.infer<typeof userParser>;

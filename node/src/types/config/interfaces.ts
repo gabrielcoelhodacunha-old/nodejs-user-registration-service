@@ -15,13 +15,16 @@ interface IReadWrite<
 > extends IRead<READ>,
     IWrite<WRITE> {}
 
-export interface IRepository extends IReadWrite {}
+export interface IRepository extends IReadWrite {
+  findById: (id: any) => Promise<any>;
+  create: (newEntity: any) => Promise<any>;
+}
 
 export interface IRepositoryOptions<ENTITY extends Document> {
   collection: Collection<ENTITY>;
 }
 
-export interface IService extends IWrite {}
+export interface IService extends IRepository {}
 
 export interface IServiceOptions<I_REPOSITORY extends IRepository> {
   repository: I_REPOSITORY;
