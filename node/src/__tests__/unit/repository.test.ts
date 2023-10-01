@@ -45,7 +45,7 @@ describe("Unit Testing | UsersRepository", () => {
           }
         }
         async function assert(actResult: unknown) {
-          expect(actResult).not.toBeDefined();
+          expect(actResult).toBeUndefined();
           expect(spies.collection.insertOne).toHaveBeenCalledWith(
             inputs.newUser
           );
@@ -88,7 +88,7 @@ describe("Unit Testing | UsersRepository", () => {
     describe(`scenario: finding results in error
         given id doesn't belong to user in database
         when i try to find the user`, () => {
-      it(`then i should receive an error`, async () => {
+      it(`then i should receive an error with message 'User with id {id} doesn't exist'`, async () => {
         const inputs = {} as { id: UUID };
         async function arrange() {
           inputs.id = new UUID();
@@ -102,7 +102,10 @@ describe("Unit Testing | UsersRepository", () => {
           }
         }
         async function assert(actResult: unknown) {
-          expect(actResult).toBeInstanceOf(Error);
+          expect(actResult).toHaveProperty(
+            "message",
+            expect.stringMatching(`User with id ${inputs.id} doesn't exist`)
+          );
         }
 
         await arrange().then(act).then(assert);
