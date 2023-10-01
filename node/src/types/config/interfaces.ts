@@ -2,7 +2,7 @@ import { RequestHandler } from "express";
 import { Collection, Document } from "mongodb";
 
 interface IRead<T extends Function = Function> {
-  findById: T;
+  find: T;
 }
 
 interface IWrite<T extends Function = Function> {
@@ -16,7 +16,7 @@ interface IReadWrite<
     IWrite<WRITE> {}
 
 export interface IRepository extends IReadWrite {
-  findById: (id: any) => Promise<any>;
+  find: (filter: any) => Promise<any>;
   create: (newEntity: any) => Promise<any>;
 }
 

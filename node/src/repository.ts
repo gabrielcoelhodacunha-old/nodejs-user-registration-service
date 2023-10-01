@@ -1,6 +1,11 @@
-import { Collection, UUID } from "mongodb";
+import { Collection, MongoServerError, UUID } from "mongodb";
 import { database } from "./database";
-import { IUsersRepository, IUsersRepositoryOptions, User } from "./types";
+import {
+  IUsersRepository,
+  IUsersRepositoryOptions,
+  User,
+  FindUserFilter,
+} from "./types";
 
 export class UsersRepository implements IUsersRepository {
   private readonly _collection: Collection<User>;
@@ -13,16 +18,15 @@ export class UsersRepository implements IUsersRepository {
     this._collection = collection;
   }
 
-  async create(newUser: User): Promise<boolean> {
-    return (await this._collection.insertOne(newUser)).acknowledged;
+  async create(newUser: User): Promise<void> {
+    await this._collection.insertOne(newUser);
   }
 
-  async findById(id: UUID): Promise<User> {
-    const user = await this._collection.findOne<User>(
-      { external_id: id },
-      { projection: { _id: 0 } }
-    );
-    if (!user) throw new Error(`User with id ${id} doesn't exist`);
+  async find(findUserFilter: FindUserFilter): Promise<User> {
+    const user = await this._collection.findOne<User>(findUserFilter, {
+      projection: { _id: 0 },
+    });
+    if (!user) throw new Error("User with filters doesn't exist");
     return user;
   }
 }

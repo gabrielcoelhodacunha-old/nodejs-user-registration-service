@@ -15,7 +15,15 @@ export const userParser = z
   })
   .strict();
 
-export const createUserDtoParser = userParser
+export const userResponseParser = userParser.transform(
+  ({ external_id: id, created_at: createdAt, ...rest }) => ({
+    id: id.toHexString(),
+    ...rest,
+    createdAt,
+  })
+);
+
+export const createUserRequestParser = userParser
   .pick({
     email: true,
     password: true,
@@ -25,10 +33,13 @@ export const createUserDtoParser = userParser
     ...rest,
   }));
 
-export const findUserDtoParser = userParser.transform(
-  ({ external_id: id, created_at: createdAt, ...rest }) => ({
-    id: id.toHexString(),
+export const findUserFilterParser = userParser
+  .pick({ external_id: true, email: true })
+  .partial();
+
+export const findUserRequestParser = findUserFilterParser.transform(
+  ({ external_id: id, ...rest }) => ({
+    id: id?.toHexString(),
     ...rest,
-    createdAt,
   })
 );

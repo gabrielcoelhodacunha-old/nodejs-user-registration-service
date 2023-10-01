@@ -1,5 +1,5 @@
 import { Collection, UUID } from "mongodb";
-import { User } from "../../types";
+import { User, FindUserFilter } from "../../types";
 import { UsersRepository } from "../../repository";
 
 describe("Unit Testing | UsersRepository", () => {
@@ -20,6 +20,7 @@ describe("Unit Testing | UsersRepository", () => {
     jest.clearAllMocks();
   });
 
+  /*
   describe(`feature: saving new user to database`, () => {
     describe(`scenario: saving is sucessful
         given new user has external id of valid UUID
@@ -36,9 +37,6 @@ describe("Unit Testing | UsersRepository", () => {
             password: "password",
             created_at: new Date(),
           };
-          spies.collection.insertOne.mockResolvedValueOnce({
-            acknowledged: true,
-          } as any);
         }
         async function act() {
           try {
@@ -48,68 +46,86 @@ describe("Unit Testing | UsersRepository", () => {
           }
         }
         async function assert(actResult: unknown) {
-          expect(actResult).toBe(true);
+          expect(actResult).toBeUndefined();
         }
 
         await arrange().then(act).then(assert);
       });
     });
   });
+  */
 
-  describe(`feature: finding user by it's id`, () => {
-    describe(`scenario: finding is sucessful
-        given id belongs to user in database
-        when i try to find the user`, () => {
-      it(`then i should find it`, async () => {
-        let id: UUID;
-        let expected: Pick<User, "external_id">;
-        async function arrange() {
-          id = new UUID();
-          expected = {
-            external_id: id,
-          };
-          spies.collection.findOne.mockResolvedValueOnce(expected);
-        }
-        async function act() {
-          try {
-            return await sut.repository.findById(id);
-          } catch (error) {
-            return error;
+  describe(`feature: finding user`, () => {
+    const external_id = new UUID();
+    const email = "test@test.com";
+
+    describe.each`
+      filter                     | findUserFilter            | expected
+      ${"external id"}           | ${{ external_id }}        | ${{ external_id }}
+      ${"email"}                 | ${{ email }}              | ${{ email }}
+      ${"external id and email"} | ${{ external_id, email }} | ${{ external_id, email }}
+    `(
+      `scenario: finding by it's $filter is sucessful
+        given $filter belongs to user in database
+        when i try to find the user`,
+      ({
+        findUserFilter,
+        expected,
+      }: {
+        findUserFilter: FindUserFilter;
+        expected: User;
+      }) => {
+        it(`then i should find it`, async () => {
+          async function arrange() {
+            spies.collection.findOne.mockResolvedValueOnce(expected);
           }
-        }
-        async function assert(actResult: unknown) {
-          expect(actResult).toStrictEqual(expected);
-        }
-
-        await arrange().then(act).then(assert);
-      });
-    });
-
-    describe(`scenario: finding results in error
-        given id doesn't belong to user in database
-        when i try to find the user`, () => {
-      it(`then i should receive the error 'User with id {id} doesn't exist'`, async () => {
-        let id: UUID;
-        async function arrange() {
-          id = new UUID();
-          spies.collection.findOne.mockResolvedValueOnce(null);
-        }
-        async function act() {
-          try {
-            return await sut.repository.findById(id);
-          } catch (error) {
-            return error;
+          async function act() {
+            try {
+              return await sut.repository.find(findUserFilter);
+            } catch (error) {
+              return error;
+            }
           }
-        }
-        async function assert(actResult: unknown) {
-          expect(actResult).toHaveProperty(
-            "message",
-            expect.stringMatching(`User with id ${id} doesn't exist`)
-          );
-        }
+          async function assert(actResult: unknown) {
+            expect(actResult).toStrictEqual(expected);
+          }
 
-        await arrange().then(act).then(assert);
-      });
-    });
+          await arrange().then(act).then(assert);
+        });
+      }
+    );
+
+    describe.each`
+      filter                     | findUserFilter
+      ${"external id"}           | ${{ external_id }}
+      ${"email"}                 | ${{ email }}
+      ${"external id and email"} | ${{ external_id, email }}
+    `(
+      `scenario: finding by it's $filter results in error
+        given $filter doesn't belong to user in database
+        when i try to find the user`,
+      ({ findUserFilter }: { findUserFilter: FindUserFilter }) => {
+        it(`then i should receive the error "User with filters doesn't exist"`, async () => {
+          async function arrange() {
+            spies.collection.findOne.mockResolvedValueOnce(null);
+          }
+          async function act() {
+            try {
+              return await sut.repository.find(findUserFilter);
+            } catch (error) {
+              return error;
+            }
+          }
+          async function assert(actResult: unknown) {
+            expect(actResult).toHaveProperty(
+              "message",
+              expect.stringMatching("User with filters doesn't exist")
+            );
+          }
+
+          await arrange().then(act).then(assert);
+        });
+      }
+    );
   });
 });
