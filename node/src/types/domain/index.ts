@@ -1,4 +1,3 @@
-export * from "./dtos";
+export * from "./types";
 export * from "./interfaces";
-export * from "./model";
 export * from "./parsers";

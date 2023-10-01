@@ -4,7 +4,7 @@ import { env } from "./config";
 import {
   IUsersService,
   IUsersController,
-  createUserDtoTransform,
+  createUserDtoParser,
   IUsersControllerOptions,
 } from "./types";
 import { usersService } from "./service";
@@ -25,10 +25,9 @@ export class UsersController implements IUsersController {
     next: NextFunction
   ): Promise<void> {
     try {
-      const createUserDto = await createUserDtoTransform.parseAsync(
-        request.body
-      );
-      const findUserDto = await this._service.create(createUserDto);
+      const createUserDto = await createUserDtoParser.parseAsync(request.body);
+      const createdId = await this._service.create(createUserDto);
+      const findUserDto = await this._service.findById(createdId);
       response
         .status(StatusCodes.CREATED)
         .location(`${this._baseUrl}/${findUserDto.id}`)

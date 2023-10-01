@@ -1,4 +1,3 @@
-import { UUID } from "mongodb";
 import {
   IController,
   IControllerOptions,
@@ -7,17 +6,22 @@ import {
   IService,
   IServiceOptions,
 } from "../config";
-import { CreateUserDto, FindUserDto } from "./dtos";
-import { User } from "./model";
+import {
+  CreateUserRequest,
+  FindUserRequest,
+  User,
+  UserResponse,
+  findUserFilter,
+} from "./types";
 
 export interface IUsersRepository extends IRepository {
-  create: (newUser: User) => Promise<boolean>;
-  findById: (id: UUID) => Promise<User>;
+  create: (newUser: User) => Promise<void>;
+  find: (findUserFilter: findUserFilter) => Promise<User>;
 }
 export interface IUsersRepositoryOptions extends IRepositoryOptions<User> {}
 export interface IUsersService extends IService {
-  create: (createUserDto: CreateUserDto) => Promise<boolean>;
-  findById: (id: string) => Promise<FindUserDto>;
+  create: (createUserRequest: CreateUserRequest) => Promise<string>;
+  find: (findUserRequest: FindUserRequest) => Promise<UserResponse>;
 }
 export interface IUsersServiceOptions
   extends IServiceOptions<IUsersRepository> {}

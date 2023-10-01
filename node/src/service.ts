@@ -19,9 +19,10 @@ export class UsersService implements IUsersService {
     this._repository = repository;
   }
 
-  async create(createUserDto: CreateUserDto): Promise<boolean> {
+  async create(createUserDto: CreateUserDto): Promise<string> {
     const newUser = await userParser.parseAsync(createUserDto);
-    return this._repository.create(newUser);
+    await this._repository.create(newUser);
+    return newUser.external_id.toHexString();
   }
 
   async findById(id: string): Promise<FindUserDto> {
