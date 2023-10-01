@@ -13,8 +13,8 @@ export class UsersRepository implements IUsersRepository {
     this._collection = collection;
   }
 
-  async create(newUser: User): Promise<void> {
-    await this._collection.insertOne(newUser);
+  async create(newUser: User): Promise<boolean> {
+    return (await this._collection.insertOne(newUser)).acknowledged;
   }
 
   async findById(id: UUID): Promise<User> {

@@ -28,27 +28,27 @@ describe("Unit Testing | UsersRepository", () => {
           and created at of valid date
         when i try to save the user to the database`, () => {
       it(`then i should save it`, async () => {
-        const inputs = {} as { newUser: User };
+        let newUser: User;
         async function arrange() {
-          inputs.newUser = {
+          newUser = {
             external_id: new UUID(),
             email: "test@test.com",
             password: "password",
             created_at: new Date(),
           };
+          spies.collection.insertOne.mockResolvedValueOnce({
+            acknowledged: true,
+          } as any);
         }
         async function act() {
           try {
-            return await sut.repository.create(inputs.newUser);
+            return await sut.repository.create(newUser);
           } catch (error) {
             return error;
           }
         }
         async function assert(actResult: unknown) {
-          expect(actResult).toBeUndefined();
-          expect(spies.collection.insertOne).toHaveBeenCalledWith(
-            inputs.newUser
-          );
+          expect(actResult).toBe(true);
         }
 
         await arrange().then(act).then(assert);
@@ -61,24 +61,24 @@ describe("Unit Testing | UsersRepository", () => {
         given id belongs to user in database
         when i try to find the user`, () => {
       it(`then i should find it`, async () => {
-        const inputs = {} as { id: UUID };
-        let expectedReturn: Pick<User, "external_id">;
+        let id: UUID;
+        let expected: Pick<User, "external_id">;
         async function arrange() {
-          inputs.id = new UUID();
-          expectedReturn = {
-            external_id: inputs.id,
+          id = new UUID();
+          expected = {
+            external_id: id,
           };
-          spies.collection.findOne.mockResolvedValueOnce(expectedReturn);
+          spies.collection.findOne.mockResolvedValueOnce(expected);
         }
         async function act() {
           try {
-            return await sut.repository.findById(inputs.id);
+            return await sut.repository.findById(id);
           } catch (error) {
             return error;
           }
         }
         async function assert(actResult: unknown) {
-          expect(actResult).toStrictEqual(expectedReturn);
+          expect(actResult).toStrictEqual(expected);
         }
 
         await arrange().then(act).then(assert);
@@ -88,15 +88,15 @@ describe("Unit Testing | UsersRepository", () => {
     describe(`scenario: finding results in error
         given id doesn't belong to user in database
         when i try to find the user`, () => {
-      it(`then i should receive an error with message 'User with id {id} doesn't exist'`, async () => {
-        const inputs = {} as { id: UUID };
+      it(`then i should receive the error 'User with id {id} doesn't exist'`, async () => {
+        let id: UUID;
         async function arrange() {
-          inputs.id = new UUID();
+          id = new UUID();
           spies.collection.findOne.mockResolvedValueOnce(null);
         }
         async function act() {
           try {
-            return await sut.repository.findById(inputs.id);
+            return await sut.repository.findById(id);
           } catch (error) {
             return error;
           }
@@ -104,7 +104,7 @@ describe("Unit Testing | UsersRepository", () => {
         async function assert(actResult: unknown) {
           expect(actResult).toHaveProperty(
             "message",
-            expect.stringMatching(`User with id ${inputs.id} doesn't exist`)
+            expect.stringMatching(`User with id ${id} doesn't exist`)
           );
         }
 

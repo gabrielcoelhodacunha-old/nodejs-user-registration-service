@@ -1,32 +1,40 @@
+import { randomUUID } from "node:crypto";
 import {
   CreateUserDto,
   FindUserDto,
   IUsersRepository,
-  User,
-  findUserDtoTransform,
-  userObject,
+  findUserDtoParser,
+  userParser,
 } from "../../types";
+import { mongoUuidParser } from "../../utils";
 import { UsersService } from "../../service";
 
 describe("Unit Testing | UsersService", () => {
   const spies = {} as {
-    userObject: { parseAsync: jest.SpyInstance };
-    findUserDtoTransform: { parseAsync: jest.SpyInstance };
+    userParser: { parseAsync: jest.SpyInstance };
+    mongoUuidParser: { parseAsync: jest.SpyInstance };
+    findUserDtoParser: { parseAsync: jest.SpyInstance };
     repository: jest.MockedObject<IUsersRepository>;
   };
   const sut = {} as { service: UsersService };
 
   beforeAll(() => {
-    spies.userObject = {
-      parseAsync: jest.spyOn(userObject, "parseAsync").mockImplementation(),
+    spies.userParser = {
+      parseAsync: jest.spyOn(userParser, "parseAsync").mockImplementation(),
     };
-    spies.findUserDtoTransform = {
+    spies.mongoUuidParser = {
       parseAsync: jest
-        .spyOn(findUserDtoTransform, "parseAsync")
+        .spyOn(mongoUuidParser, "parseAsync")
+        .mockImplementation(),
+    };
+    spies.findUserDtoParser = {
+      parseAsync: jest
+        .spyOn(findUserDtoParser, "parseAsync")
         .mockImplementation(),
     };
     spies.repository = {
       create: jest.fn(),
+      findById: jest.fn(),
     } as jest.MockedObject<IUsersRepository>;
     sut.service = new UsersService({ repository: spies.repository });
   });
@@ -36,68 +44,62 @@ describe("Unit Testing | UsersService", () => {
   });
 
   describe(`feature: creating user`, () => {
-    describe(`scenario: passing valid input
-        given input={
-          email: "test@test.com",
-          password: "password",
-        }
+    describe(`scenario: creating is sucessful
+        given email of "test@test.com"
+          and password of "password"
         when i try to create the user`, () => {
       it(`then i should create it`, async () => {
-        const input: CreateUserDto = {
-          email: "test@test.com",
-          password: "password",
-        };
+        let createUserDto: CreateUserDto;
+        let expected: boolean;
         async function arrange() {
-          const user = input as User;
-          const findUserDto = user as unknown as FindUserDto;
-          spies.userObject.parseAsync.mockResolvedValueOnce(user);
-          spies.repository.create.mockResolvedValueOnce(user);
-          spies.findUserDtoTransform.parseAsync.mockResolvedValueOnce(
-            findUserDto
-          );
+          createUserDto = {
+            email: "test@test.com",
+            password: "password",
+          };
+          expected = true;
+          spies.repository.create.mockResolvedValueOnce(expected);
         }
         async function act() {
           try {
-            return await sut.service.create(input);
+            return await sut.service.create(createUserDto);
           } catch (error) {
             return error;
           }
         }
         async function assert(actResult: unknown) {
-          expect(actResult).toMatchObject<
-            Pick<FindUserDto, "email" | "password">
-          >(input);
+          expect(actResult).toBe(expected);
         }
 
         await arrange().then(act).then(assert);
       });
     });
+  });
 
-    /*
-    describe(`scenario: passing invalid data`, () => {
-      const data = {} as User;
-      describe(`given data=${JSON.stringify(data, null, 2)}`, () => {
-        describe(`when i try to create the user`, () => {
-          it(`then i should receive an error`, async () => {
-            async function arrange() {
-              spies.collection.findOne.mockResolvedValueOnce(null);
-            }
-            async function act() {
-              try {
-                return await sut.repository.create(data);
-              } catch (error) {
-                return error;
-              }
-            }
-            async function assert(actResult: unknown) {
-              expect(actResult).toBeInstanceOf(Error);
-            }
+  describe(`feature: finding user by it's id`, () => {
+    describe(`scenario: finding is sucessful
+        given id belongs to user in database
+        when i try to find the user`, () => {
+      it(`then i should find it`, async () => {
+        let id: string;
+        let expected: Pick<FindUserDto, "id">;
+        async function arrange() {
+          id = randomUUID();
+          expected = { id };
+          spies.findUserDtoParser.parseAsync.mockResolvedValueOnce(expected);
+        }
+        async function act() {
+          try {
+            return await sut.service.findById(id);
+          } catch (error) {
+            return error;
+          }
+        }
+        async function assert(actResult: unknown) {
+          expect(actResult).toStrictEqual(expected);
+        }
 
-            await arrange().then(act).then(assert);
-          });
-        });
+        await arrange().then(act).then(assert);
       });
     });
-    */
   });
 });
