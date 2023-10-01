@@ -7,11 +7,10 @@ import {
   IServiceOptions,
 } from "../config";
 import { User } from "./model";
-import { CreateUserDto, FindUserDto } from "./dtos";
 
-export interface IUsersRepository extends IRepository<User, User> {}
+export interface IUsersRepository extends IRepository {}
 export interface IUsersRepositoryOptions extends IRepositoryOptions<User> {}
-export interface IUsersService extends IService<CreateUserDto, FindUserDto> {}
+export interface IUsersService extends IService {}
 export interface IUsersServiceOptions
   extends IServiceOptions<IUsersRepository> {}
 export interface IUsersController extends IController {}

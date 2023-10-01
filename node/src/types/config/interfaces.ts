@@ -1,27 +1,34 @@
 import { RequestHandler } from "express";
 import { Collection, Document } from "mongodb";
 
+interface IRead<T extends Function = Function> {
+  findById: T;
+}
+
 interface IWrite<T extends Function = Function> {
   create: T;
 }
 
-declare function create<INPUT, OUTPUT>(entityToCreate: INPUT): Promise<OUTPUT>;
+interface IReadWrite<
+  READ extends Function = Function,
+  WRITE extends Function = Function
+> extends IRead<READ>,
+    IWrite<WRITE> {}
 
-export interface IRepository<INPUT, OUTPUT>
-  extends IWrite<typeof create<INPUT, OUTPUT>> {}
+export interface IRepository extends IReadWrite {}
 
 export interface IRepositoryOptions<ENTITY extends Document> {
   collection: Collection<ENTITY>;
 }
 
-export interface IService<INPUT, OUTPUT> extends IRepository<INPUT, OUTPUT> {}
+export interface IService extends IWrite {}
 
-export interface IServiceOptions<I_REPOSITORY extends IRepository<any, any>> {
+export interface IServiceOptions<I_REPOSITORY extends IRepository> {
   repository: I_REPOSITORY;
 }
 
 export interface IController extends IWrite<RequestHandler> {}
 
-export interface IControllerOptions<I_SERVICE extends IService<any, any>> {
+export interface IControllerOptions<I_SERVICE extends IService> {
   service: I_SERVICE;
 }

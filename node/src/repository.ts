@@ -13,12 +13,11 @@ export class UsersRepository implements IUsersRepository {
     this._collection = collection;
   }
 
-  async create(newUser: User): Promise<User> {
+  async create(newUser: User): Promise<void> {
     await this._collection.insertOne(newUser);
-    return this._findById(newUser.external_id);
   }
 
-  private async _findById(id: UUID): Promise<User> {
+  async findById(id: UUID): Promise<User> {
     const user = await this._collection.findOne<User>(
       { external_id: id },
       { projection: { _id: 0 } }
