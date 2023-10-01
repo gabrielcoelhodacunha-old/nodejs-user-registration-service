@@ -20,59 +20,92 @@ describe("Unit Testing | UsersRepository", () => {
     jest.clearAllMocks();
   });
 
-  describe(`feature: creating user`, () => {
-    describe(`scenario: passing valid data`, () => {
-      const data: User = {
-        external_id: new UUID(),
-        email: "test@test.com",
-        password: "password",
-        created_at: new Date(),
-      };
-      describe(`given data=${JSON.stringify(data, null, 2)}`, () => {
-        describe(`when i try to create the user`, () => {
-          it(`then i should create it`, async () => {
-            async function arrange() {
-              spies.collection.findOne.mockResolvedValueOnce(data);
-            }
-            async function act() {
-              try {
-                return await sut.repository.create(data);
-              } catch (error) {
-                return error;
-              }
-            }
-            async function assert(actResult: unknown) {
-              expect(actResult).toStrictEqual(data);
-            }
+  describe(`feature: saving new user to database`, () => {
+    describe(`scenario: saving is sucessful
+        given new user has external id of valid UUID
+          and email of "test@test.com"
+          and password of "password"
+          and created at of valid date
+        when i try to save the user to the database`, () => {
+      it(`then i should save it`, async () => {
+        const inputs = {} as { newUser: User };
+        async function arrange() {
+          inputs.newUser = {
+            external_id: new UUID(),
+            email: "test@test.com",
+            password: "password",
+            created_at: new Date(),
+          };
+        }
+        async function act() {
+          try {
+            return await sut.repository.create(inputs.newUser);
+          } catch (error) {
+            return error;
+          }
+        }
+        async function assert(actResult: unknown) {
+          expect(actResult).not.toBeDefined();
+          expect(spies.collection.insertOne).toHaveBeenCalledWith(
+            inputs.newUser
+          );
+        }
 
-            await arrange().then(act).then(assert);
-          });
-        });
+        await arrange().then(act).then(assert);
+      });
+    });
+  });
+
+  describe(`feature: finding user by it's id`, () => {
+    describe(`scenario: finding is sucessful
+        given id belongs to user in database
+        when i try to find the user`, () => {
+      it(`then i should find it`, async () => {
+        const inputs = {} as { id: UUID };
+        let expectedReturn: Pick<User, "external_id">;
+        async function arrange() {
+          inputs.id = new UUID();
+          expectedReturn = {
+            external_id: inputs.id,
+          };
+          spies.collection.findOne.mockResolvedValueOnce(expectedReturn);
+        }
+        async function act() {
+          try {
+            return await sut.repository.findById(inputs.id);
+          } catch (error) {
+            return error;
+          }
+        }
+        async function assert(actResult: unknown) {
+          expect(actResult).toStrictEqual(expectedReturn);
+        }
+
+        await arrange().then(act).then(assert);
       });
     });
 
-    describe(`scenario: passing invalid data`, () => {
-      const data = {} as User;
-      describe(`given data=${JSON.stringify(data, null, 2)}`, () => {
-        describe(`when i try to create the user`, () => {
-          it(`then i should receive an error`, async () => {
-            async function arrange() {
-              spies.collection.findOne.mockResolvedValueOnce(null);
-            }
-            async function act() {
-              try {
-                return await sut.repository.create(data);
-              } catch (error) {
-                return error;
-              }
-            }
-            async function assert(actResult: unknown) {
-              expect(actResult).toBeInstanceOf(Error);
-            }
+    describe(`scenario: finding results in error
+        given id doesn't belong to user in database
+        when i try to find the user`, () => {
+      it(`then i should receive an error`, async () => {
+        const inputs = {} as { id: UUID };
+        async function arrange() {
+          inputs.id = new UUID();
+          spies.collection.findOne.mockResolvedValueOnce(null);
+        }
+        async function act() {
+          try {
+            return await sut.repository.findById(inputs.id);
+          } catch (error) {
+            return error;
+          }
+        }
+        async function assert(actResult: unknown) {
+          expect(actResult).toBeInstanceOf(Error);
+        }
 
-            await arrange().then(act).then(assert);
-          });
-        });
+        await arrange().then(act).then(assert);
       });
     });
   });
