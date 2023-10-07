@@ -1,13 +1,14 @@
 import {
-  CreateUserDto,
-  FindUserDto,
+  CreateUserRequest,
   IUsersRepository,
   IUsersService,
   IUsersServiceOptions,
-  findUserDtoParser,
+  User,
+  UserResponse,
+  findUserFilterParser,
   userParser,
+  userResponseParser,
 } from "./types";
-import { mongoUuidParser } from "./utils";
 import { usersRepository } from "./repository";
 
 export class UsersService implements IUsersService {
@@ -19,16 +20,30 @@ export class UsersService implements IUsersService {
     this._repository = repository;
   }
 
-  async create(createUserDto: CreateUserDto): Promise<string> {
-    const newUser = await userParser.parseAsync(createUserDto);
+  async create({ email, ...rest }: CreateUserRequest): Promise<UserResponse> {
+    const user = await this._find({ email });
+    if (user) throw new Error(`User with email ${email} already exists`);
+    const newUser = await userParser.parseAsync({ email, ...rest });
     await this._repository.create(newUser);
-    return newUser.external_id.toHexString();
+    return userResponseParser.parseAsync(newUser);
   }
 
-  async findById(id: string): Promise<FindUserDto> {
-    const uuid = await mongoUuidParser.parseAsync(id);
-    const user = await this._repository.findById(uuid);
-    return findUserDtoParser.parseAsync(user);
+  private async _find(
+    possibleFilter: Record<"email", string>
+  ): Promise<User | null> {
+    let result: User | null = null;
+    try {
+      const filter = await findUserFilterParser.parseAsync(possibleFilter);
+      result = await this._repository.find(filter);
+    } catch (error) {
+      if (
+        !(error instanceof Error) ||
+        !error.message.match("User with filters doesn't exist")
+      )
+        throw error;
+    } finally {
+      return result;
+    }
   }
 }
 

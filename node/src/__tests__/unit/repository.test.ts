@@ -1,5 +1,5 @@
 import { Collection, UUID } from "mongodb";
-import { User, FindUserFilter } from "../../types";
+import { User, FindUserFilter, UserNotFoundError } from "../../types";
 import { UsersRepository } from "../../repository";
 
 describe("Unit Testing | UsersRepository", () => {
@@ -20,7 +20,6 @@ describe("Unit Testing | UsersRepository", () => {
     jest.clearAllMocks();
   });
 
-  /*
   describe(`feature: saving new user to database`, () => {
     describe(`scenario: saving is sucessful
         given new user has external id of valid UUID
@@ -53,7 +52,6 @@ describe("Unit Testing | UsersRepository", () => {
       });
     });
   });
-  */
 
   describe(`feature: finding user`, () => {
     const external_id = new UUID();
@@ -105,7 +103,7 @@ describe("Unit Testing | UsersRepository", () => {
         given $filter doesn't belong to user in database
         when i try to find the user`,
       ({ findUserFilter }: { findUserFilter: FindUserFilter }) => {
-        it(`then i should receive the error "User with filters doesn't exist"`, async () => {
+        it(`then i should receive the UserNotFoundError`, async () => {
           async function arrange() {
             spies.collection.findOne.mockResolvedValueOnce(null);
           }
@@ -117,10 +115,7 @@ describe("Unit Testing | UsersRepository", () => {
             }
           }
           async function assert(actResult: unknown) {
-            expect(actResult).toHaveProperty(
-              "message",
-              expect.stringMatching("User with filters doesn't exist")
-            );
+            expect(actResult).toBeInstanceOf(UserNotFoundError);
           }
 
           await arrange().then(act).then(assert);

@@ -1,10 +1,11 @@
-import { Collection, MongoServerError, UUID } from "mongodb";
+import { Collection } from "mongodb";
 import { database } from "./database";
 import {
   IUsersRepository,
   IUsersRepositoryOptions,
   User,
   FindUserFilter,
+  UserNotFoundError,
 } from "./types";
 
 export class UsersRepository implements IUsersRepository {
@@ -26,7 +27,7 @@ export class UsersRepository implements IUsersRepository {
     const user = await this._collection.findOne<User>(findUserFilter, {
       projection: { _id: 0 },
     });
-    if (!user) throw new Error("User with filters doesn't exist");
+    if (!user) throw new UserNotFoundError();
     return user;
   }
 }
