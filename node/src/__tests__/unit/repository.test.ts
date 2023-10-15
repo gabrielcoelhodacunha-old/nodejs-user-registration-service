@@ -20,14 +20,14 @@ describe("Unit Testing | UsersRepository", () => {
     jest.clearAllMocks();
   });
 
-  describe(`feature: saving new user to database`, () => {
-    describe(`scenario: saving is sucessful
-        given new user has external id of valid UUID
-          and email of "test@test.com"
-          and password of "password"
-          and created at of valid date
-        when i try to save the user to the database`, () => {
-      it(`then i should save it`, async () => {
+  describe(`feature: save new user to database`, () => {
+    describe("scenario: save is sucessful", () => {
+      it(`given new user has external id of valid UUID
+            and email of "test@test.com"
+            and password of "password"
+            and created at of valid date
+          when i try to save the user to the database
+          then i should save it`, async () => {
         let newUser: User;
         async function arrange() {
           newUser = {
@@ -53,7 +53,7 @@ describe("Unit Testing | UsersRepository", () => {
     });
   });
 
-  describe(`feature: finding user`, () => {
+  describe(`feature: find user`, () => {
     const external_id = new UUID();
     const email = "test@test.com";
 
@@ -63,17 +63,19 @@ describe("Unit Testing | UsersRepository", () => {
       ${"email"}                 | ${{ email }}              | ${{ email }}
       ${"external id and email"} | ${{ external_id, email }} | ${{ external_id, email }}
     `(
-      `scenario: finding by it's $filter is sucessful
-        given $filter belongs to user in database
-        when i try to find the user`,
+      "scenario: find by it's $filter is sucessful",
       ({
+        filter,
         findUserFilter,
         expected,
       }: {
+        filter: string;
         findUserFilter: FindUserFilter;
         expected: User;
       }) => {
-        it(`then i should find it`, async () => {
+        it(`given ${filter} belongs to user in database
+          when i try to find the user
+          then i should find it`, async () => {
           async function arrange() {
             spies.collection.findOne.mockResolvedValueOnce(expected);
           }
@@ -99,11 +101,17 @@ describe("Unit Testing | UsersRepository", () => {
       ${"email"}                 | ${{ email }}
       ${"external id and email"} | ${{ external_id, email }}
     `(
-      `scenario: finding by it's $filter results in error
-        given $filter doesn't belong to user in database
-        when i try to find the user`,
-      ({ findUserFilter }: { findUserFilter: FindUserFilter }) => {
-        it(`then i should receive the UserNotFoundError`, async () => {
+      "scenario: finding by it's $filter results in error",
+      ({
+        filter,
+        findUserFilter,
+      }: {
+        filter: string;
+        findUserFilter: FindUserFilter;
+      }) => {
+        it(`given ${filter} doesn't belong to user in database
+          when i try to find the user
+          then the UserNotFoundError should be thrown`, async () => {
           async function arrange() {
             spies.collection.findOne.mockResolvedValueOnce(null);
           }
