@@ -36,7 +36,6 @@ export class UsersService implements IUsersService {
     try {
       return await this._repository.find(filter);
     } catch (error) {
-      // Test this branch?
       if (!(error instanceof UserNotFoundError)) throw error;
       return null;
     }

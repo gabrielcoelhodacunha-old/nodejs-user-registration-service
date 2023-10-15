@@ -38,12 +38,12 @@ describe("Unit Testing | UsersService", () => {
     jest.clearAllMocks();
   });
 
-  describe(`feature: creating user`, () => {
-    describe(`scenario: creating is sucessful
-        given email of "test@test.com"
-          and password of "password"
-        when i try to create the user`, () => {
-      it(`then i should create it`, async () => {
+  describe(`feature: create user`, () => {
+    describe("scenario: create is sucessful", () => {
+      it(`given email of "test@test.com"
+            and password of "password"
+          when i try to create the user
+          then i should create it`, async () => {
         let createUserRequest: CreateUserRequest;
         let user: User;
         let expected: UserResponse;
@@ -74,10 +74,10 @@ describe("Unit Testing | UsersService", () => {
       });
     });
 
-    describe(`scenario: creating results in error
-        given email belongs to an existing user
-        when i try to create the user`, () => {
-      it(`then i should receive the UserExistsError`, async () => {
+    describe("scenario: create results in error", () => {
+      it(`given email belongs to an existing user
+          when i try to create the user
+          then the UserExistsError should be thrown`, async () => {
         let createUserRequest: CreateUserRequest;
         let user: User;
         async function arrange() {
@@ -97,6 +97,33 @@ describe("Unit Testing | UsersService", () => {
         }
         async function assert(actResult: unknown) {
           expect(actResult).toBeInstanceOf(UserExistsError);
+        }
+
+        await arrange().then(act).then(assert);
+      });
+
+      it(`given an unexpected error occurs
+          when i try to create the user
+          then the unexpected error should be thrown`, async () => {
+        let createUserRequest: CreateUserRequest;
+        let expected: Error;
+        async function arrange() {
+          createUserRequest = {
+            email: "test@test.com",
+            password: "password",
+          };
+          expected = new Error("Unexpected error");
+          spies.repository.find.mockRejectedValueOnce(expected);
+        }
+        async function act() {
+          try {
+            return await sut.service.create(createUserRequest);
+          } catch (error) {
+            return error;
+          }
+        }
+        async function assert(actResult: unknown) {
+          expect(actResult).toBe(expected);
         }
 
         await arrange().then(act).then(assert);
