@@ -1,6 +1,6 @@
 import { StatusCodes } from "http-status-codes";
 
-export abstract class ApplicationError extends Error {
+export class ApplicationError extends Error {
   private _origin: Error | null;
   get origin(): typeof this._origin {
     return this._origin;
@@ -11,9 +11,9 @@ export abstract class ApplicationError extends Error {
   }
 
   constructor(
-    message: string,
-    statusCode: StatusCodes = StatusCodes.INTERNAL_SERVER_ERROR,
-    origin?: unknown
+    origin?: unknown,
+    message: string = "Application failed to process the request",
+    statusCode: StatusCodes = StatusCodes.INTERNAL_SERVER_ERROR
   ) {
     super(message);
     this._origin = origin instanceof Error ? origin : null;

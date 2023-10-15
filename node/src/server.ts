@@ -6,6 +6,7 @@ import { mongoClient } from "./database";
 mongoClient
   .connect()
   .then(() => {
+    console.log("MongoDB client connected");
     return app.listen(env.PORT, () => {
       console.log(
         `Server listening on ${env.PROTOCOL}://${env.HOST}:${env.PORT}`
