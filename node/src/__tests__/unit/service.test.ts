@@ -1,19 +1,19 @@
-import { randomUUID } from "node:crypto";
 import {
-  CreateUserDto,
-  FindUserDto,
+  CreateUserRequest,
   IUsersRepository,
-  findUserDtoParser,
+  User,
+  UserExistsError,
+  UserNotFoundError,
+  UserResponse,
   userParser,
+  userResponseParser,
 } from "../../types";
-import { mongoUuidParser } from "../../utils";
 import { UsersService } from "../../service";
 
 describe("Unit Testing | UsersService", () => {
   const spies = {} as {
     userParser: { parseAsync: jest.SpyInstance };
-    mongoUuidParser: { parseAsync: jest.SpyInstance };
-    findUserDtoParser: { parseAsync: jest.SpyInstance };
+    userResponseParser: { parseAsync: jest.SpyInstance };
     repository: jest.MockedObject<IUsersRepository>;
   };
   const sut = {} as { service: UsersService };
@@ -22,19 +22,14 @@ describe("Unit Testing | UsersService", () => {
     spies.userParser = {
       parseAsync: jest.spyOn(userParser, "parseAsync").mockImplementation(),
     };
-    spies.mongoUuidParser = {
+    spies.userResponseParser = {
       parseAsync: jest
-        .spyOn(mongoUuidParser, "parseAsync")
-        .mockImplementation(),
-    };
-    spies.findUserDtoParser = {
-      parseAsync: jest
-        .spyOn(findUserDtoParser, "parseAsync")
+        .spyOn(userResponseParser, "parseAsync")
         .mockImplementation(),
     };
     spies.repository = {
       create: jest.fn(),
-      findById: jest.fn(),
+      find: jest.fn(),
     } as jest.MockedObject<IUsersRepository>;
     sut.service = new UsersService({ repository: spies.repository });
   });
@@ -49,53 +44,59 @@ describe("Unit Testing | UsersService", () => {
           and password of "password"
         when i try to create the user`, () => {
       it(`then i should create it`, async () => {
-        let createUserDto: CreateUserDto;
-        let expected: boolean;
+        let createUserRequest: CreateUserRequest;
+        let user: User;
+        let expected: UserResponse;
         async function arrange() {
-          createUserDto = {
+          createUserRequest = {
             email: "test@test.com",
             password: "password",
           };
-          expected = true;
-          spies.repository.create.mockResolvedValueOnce(expected);
+          user = createUserRequest as User;
+          expected = createUserRequest as UserResponse;
+          spies.repository.find.mockRejectedValueOnce(new UserNotFoundError());
+          spies.userParser.parseAsync.mockResolvedValueOnce(user);
+          spies.repository.find.mockResolvedValueOnce(user);
+          spies.userResponseParser.parseAsync.mockResolvedValueOnce(expected);
         }
         async function act() {
           try {
-            return await sut.service.create(createUserDto);
-          } catch (error) {
-            return error;
-          }
-        }
-        async function assert(actResult: unknown) {
-          expect(actResult).toBe(expected);
-        }
-
-        await arrange().then(act).then(assert);
-      });
-    });
-  });
-
-  describe(`feature: finding user by it's id`, () => {
-    describe(`scenario: finding is sucessful
-        given id belongs to user in database
-        when i try to find the user`, () => {
-      it(`then i should find it`, async () => {
-        let id: string;
-        let expected: Pick<FindUserDto, "id">;
-        async function arrange() {
-          id = randomUUID();
-          expected = { id };
-          spies.findUserDtoParser.parseAsync.mockResolvedValueOnce(expected);
-        }
-        async function act() {
-          try {
-            return await sut.service.findById(id);
+            return await sut.service.create(createUserRequest);
           } catch (error) {
             return error;
           }
         }
         async function assert(actResult: unknown) {
           expect(actResult).toStrictEqual(expected);
+        }
+
+        await arrange().then(act).then(assert);
+      });
+    });
+
+    describe(`scenario: creating results in error
+        given email belongs to an existing user
+        when i try to create the user`, () => {
+      it(`then i should receive the UserExistsError`, async () => {
+        let createUserRequest: CreateUserRequest;
+        let user: User;
+        async function arrange() {
+          createUserRequest = {
+            email: "test@test.com",
+            password: "password",
+          };
+          user = createUserRequest as User;
+          spies.repository.find.mockResolvedValueOnce(user);
+        }
+        async function act() {
+          try {
+            return await sut.service.create(createUserRequest);
+          } catch (error) {
+            return error;
+          }
+        }
+        async function assert(actResult: unknown) {
+          expect(actResult).toBeInstanceOf(UserExistsError);
         }
 
         await arrange().then(act).then(assert);

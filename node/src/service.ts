@@ -1,11 +1,13 @@
 import {
   CreateUserRequest,
+  FindUserFilter,
   IUsersRepository,
   IUsersService,
   IUsersServiceOptions,
   User,
+  UserExistsError,
+  UserNotFoundError,
   UserResponse,
-  findUserFilterParser,
   userParser,
   userResponseParser,
 } from "./types";
@@ -21,28 +23,22 @@ export class UsersService implements IUsersService {
   }
 
   async create({ email, ...rest }: CreateUserRequest): Promise<UserResponse> {
-    const user = await this._find({ email });
-    if (user) throw new Error(`User with email ${email} already exists`);
-    const newUser = await userParser.parseAsync({ email, ...rest });
-    await this._repository.create(newUser);
-    return userResponseParser.parseAsync(newUser);
+    await this._find({ email }).then((user) => {
+      if (user) throw new UserExistsError(email);
+    });
+    await userParser
+      .parseAsync({ email, ...rest })
+      .then(async (user) => await this._repository.create(user));
+    return this._find({ email }).then(userResponseParser.parseAsync);
   }
 
-  private async _find(
-    possibleFilter: Record<"email", string>
-  ): Promise<User | null> {
-    let result: User | null = null;
+  private async _find(filter: FindUserFilter): Promise<User | null> {
     try {
-      const filter = await findUserFilterParser.parseAsync(possibleFilter);
-      result = await this._repository.find(filter);
+      return await this._repository.find(filter);
     } catch (error) {
-      if (
-        !(error instanceof Error) ||
-        !error.message.match("User with filters doesn't exist")
-      )
-        throw error;
-    } finally {
-      return result;
+      // Test this branch?
+      if (!(error instanceof UserNotFoundError)) throw error;
+      return null;
     }
   }
 }
