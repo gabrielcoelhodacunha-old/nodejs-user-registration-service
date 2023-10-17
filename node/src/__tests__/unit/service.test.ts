@@ -34,10 +34,6 @@ describe("Unit Testing | UsersService", () => {
     sut.service = new UsersService({ repository: spies.repository });
   });
 
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
   describe(`feature: create user`, () => {
     describe("scenario: create is sucessful", () => {
       it(`given email of "test@test.com"

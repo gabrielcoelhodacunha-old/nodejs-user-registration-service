@@ -16,10 +16,6 @@ describe("Unit Testing | UsersRepository", () => {
     sut.repository = new UsersRepository({ collection: spies.collection });
   });
 
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
   describe(`feature: save new user to database`, () => {
     describe("scenario: save is sucessful", () => {
       it(`given new user has external id of valid UUID
