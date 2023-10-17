@@ -11,6 +11,7 @@ const config: Config.InitialOptions = {
   roots: ["src"],
   haste: { forceNodeFilesystemAPI: true, throwOnModuleCollision: true },
   coveragePathIgnorePatterns: ["config", "database", "types", "utils"],
+  clearMocks: true,
 };
 
 export default config;

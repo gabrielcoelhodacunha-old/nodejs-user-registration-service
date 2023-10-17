@@ -1,25 +1,15 @@
 import express, { NextFunction, Request, Response } from "express";
+import { ExpressErrorsHandler } from "@gccunha015/express-errors-handler";
 import { usersRouter } from "./router";
-import { ApplicationError } from "./types";
 
 const app = express();
+const errorsHandler = new ExpressErrorsHandler();
 
 app.use(express.json());
 app.use("/users", usersRouter);
-// Isolate this error handler as a library
 app.use(
-  (
-    error: Error,
-    _request: Request,
-    response: Response,
-    _next: NextFunction
-  ): void => {
-    const _error =
-      error instanceof ApplicationError ? error : new ApplicationError(error);
-    // console = ILogger
-    console.log(`Error origin: ${_error.origin}`);
-    response.status(_error.statusCode).send({ error: _error.message });
-  }
+  (error: Error, request: Request, response: Response, next: NextFunction) =>
+    errorsHandler.handle(error, request, response, next)
 );
 
 export { app };
