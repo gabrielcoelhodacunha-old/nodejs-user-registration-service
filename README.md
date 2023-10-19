@@ -42,8 +42,8 @@ REST API service to register users.
   <li>✅ Define database schema</li>
   <li>⬜ Implement, test and document API
     <ul type="none">
-      <li>⬜ Implementation</li>
-      <li>⬜ Unit testing</li>
+      <li>✅ Implementation</li>
+      <li>✅ Unit testing</li>
       <li>⬜ Integration testing</li>
       <li>⬜ E2E testing</li>
       <li>⬜ Add Swagger on route <code>/docs</code></li>
