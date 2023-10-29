@@ -1,37 +1,38 @@
 import { randomUUID } from "node:crypto";
-import { NextFunction, Request, Response } from "express";
-import {
-  CreateUserRequest,
-  IUsersService,
-  UserResponse,
-  createUserRequestParser,
-} from "../../types";
-import { UsersController } from "../../controller";
 import { StatusCodes } from "http-status-codes";
+import type { NextFunction, Request, Response } from "express";
+import type {
+  IInsertUserRequestParser,
+  IUsersService,
+  InsertUserRequest,
+  UserResponse,
+} from "@gccunha015/services-core";
+import { UsersController } from "../UsersController";
 
 describe("Unit Testing | UsersController", () => {
   const spies = {} as {
-    createUserRequestParser: { parseAsync: jest.SpyInstance };
-    response: jest.MockedObjectDeep<Response>;
-    next: jest.MockedObjectDeep<NextFunction>;
-    service: jest.MockedObjectDeep<IUsersService>;
+    insertUserRequestParser: jest.MockedObject<IInsertUserRequestParser>;
+    response: jest.MockedObject<Response>;
+    next: jest.MockedObject<NextFunction>;
+    service: jest.MockedObject<IUsersService>;
   };
   const sut = {} as { controller: UsersController };
 
   beforeAll(() => {
-    spies.createUserRequestParser = {
-      parseAsync: jest
-        .spyOn(createUserRequestParser, "parseAsync")
-        .mockImplementation(),
+    spies.insertUserRequestParser = {
+      parseAsync: jest.fn(),
     };
-    spies.response = jest.mocked({
+    spies.response = {
       status: jest.fn().mockReturnThis(),
       location: jest.fn().mockReturnThis(),
       json: jest.fn().mockReturnThis(),
-    } as unknown as Response);
+    } as unknown as jest.MockedObject<Response>;
     spies.next = jest.fn();
-    spies.service = jest.mocked({ create: jest.fn() } as IUsersService);
-    sut.controller = new UsersController({ service: spies.service });
+    spies.service = { insert: jest.fn() } as jest.MockedObject<IUsersService>;
+    sut.controller = new UsersController({
+      service: spies.service,
+      insertEntityRequestParser: spies.insertUserRequestParser,
+    });
   });
 
   describe("feature: create user", () => {
@@ -41,24 +42,24 @@ describe("Unit Testing | UsersController", () => {
           then I should respond with status CREATED
             and location containing the created user id
             and json of the created user`, async () => {
-        let createUserRequest: CreateUserRequest;
+        let newUser: InsertUserRequest;
         let request: Request;
         let userResponse: UserResponse;
         async function arrange() {
-          createUserRequest = { email: "test@test.com", password: "password" };
-          request = { body: createUserRequest } as Request;
+          newUser = { email: "test@test.com", password: "password" };
+          request = { body: newUser } as Request;
           userResponse = {
             id: randomUUID(),
-            ...createUserRequest,
+            ...newUser,
             createdAt: new Date(),
           };
-          spies.createUserRequestParser.parseAsync.mockResolvedValueOnce(
-            createUserRequest
+          spies.insertUserRequestParser.parseAsync.mockResolvedValueOnce(
+            newUser
           );
-          spies.service.create.mockResolvedValueOnce(userResponse);
+          spies.service.insert.mockResolvedValueOnce(userResponse);
         }
         async function act() {
-          await sut.controller.create(request, spies.response, spies.next);
+          await sut.controller.insert(request, spies.response, spies.next);
         }
         async function assert() {
           expect(spies.response.status).toHaveBeenLastCalledWith(
@@ -83,10 +84,10 @@ describe("Unit Testing | UsersController", () => {
         async function arrange() {
           request = { body: {} } as Request;
           error = new Error("Some error");
-          spies.createUserRequestParser.parseAsync.mockRejectedValueOnce(error);
+          spies.insertUserRequestParser.parseAsync.mockRejectedValueOnce(error);
         }
         async function act() {
-          await sut.controller.create(request, spies.response, spies.next);
+          await sut.controller.insert(request, spies.response, spies.next);
         }
         async function assert() {
           expect(spies.next).toHaveBeenLastCalledWith(error);
