@@ -1,7 +1,7 @@
+import "@gccunha015/services-core/lib/users/init.mongodb";
+import { env, mongoClient } from "@gccunha015/services-core";
 import { ProcessEventsHandler } from "@gccunha015/process-events-handler";
-import { env } from "./config";
 import { app } from "./app";
-import { mongoClient } from "./database";
 
 mongoClient
   .connect()

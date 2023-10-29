@@ -6,6 +6,7 @@ dist
 coverage
 ## files
 *.env*
+*.secret
 
 # exceptions
 ## folders

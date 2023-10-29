@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "dist/server.js",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "scripts": {
     "test": "npx jest",
@@ -17,7 +17,8 @@
     "clean": "npm run clean:dist; npm run clean:coverage",
     "clean:dist": "rm -fr dist",
     "clean:coverage": "rm -fr coverage",
-    "clean:build": "npm run clean:dist; npm run build"
+    "clean:build": "npm run clean:dist; npm run build",
+    "clean:build:start": "npm run clean:dist; npm run build; npm run start"
   },
   "keywords": [],
   "author": "",
@@ -25,15 +26,12 @@
   "dependencies": {
     "@gccunha015/express-errors-handler": "^1.0.0",
     "@gccunha015/process-events-handler": "^1.0.0",
-    "bcrypt": "^5.1.1",
+    "@gccunha015/services-core": "^1.0.0",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
-    "http-status-codes": "^2.2.0",
-    "mongodb": "^6.0.0",
-    "zod": "^3.22.2"
+    "http-status-codes": "^2.2.0"
   },
   "devDependencies": {
-    "@types/bcrypt": "^5.0.0",
     "@types/express": "^4.17.17",
     "@types/jest": "^29.5.4",
     "jest": "^29.6.3",
