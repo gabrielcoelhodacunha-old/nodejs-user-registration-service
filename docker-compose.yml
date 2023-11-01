@@ -1,9 +1,10 @@
+version: "3"
 name: nodejs_services
 
 services:
   mongo:
     build: mongo
-    env_file: mongo/.env
+    env_file: mongo/.env.production
     volumes:
       - mongo:/data/db
     ports:
@@ -16,7 +17,7 @@ services:
       context: node
       secrets:
         - gpr_read_token
-    env_file: node/.env
+    env_file: node/.env.production
     ports:
       - ${NODE_HOST_PORT}:${NODE_CONTAINER_PORT}
 
@@ -26,4 +27,4 @@ volumes:
 secrets:
   # Token to read from GitHub Package Registry
   gpr_read_token:
-    file: gpr_read_token.secret
+    file: node/gpr_read_token.secret

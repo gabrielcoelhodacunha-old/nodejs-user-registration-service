@@ -8,9 +8,7 @@ mongoClient
   .then(() => {
     console.log("MongoDB client connected");
     return app.listen(env.PORT, () => {
-      console.log(
-        `Server listening on ${env.PROTOCOL}://${env.HOST}:${env.PORT}`
-      );
+      console.log(`Server listening on ${env.BASE_URL}`);
     });
   })
   .then((server) => {

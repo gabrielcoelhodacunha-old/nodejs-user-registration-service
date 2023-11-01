@@ -1,3 +1,5 @@
+import { StatusCodes } from "http-status-codes";
+import type { NextFunction, Request, Response } from "express";
 import {
   IInsertUserRequestParser,
   IUsersService,
@@ -5,8 +7,6 @@ import {
   insertUserRequestParser,
   usersService,
 } from "@gccunha015/services-core";
-import { StatusCodes } from "http-status-codes";
-import type { NextFunction, Request, Response } from "express";
 import type {
   IUsersController,
   IUsersControllerOptions,

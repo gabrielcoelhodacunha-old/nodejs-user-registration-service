@@ -18,4 +18,4 @@ COPY --from=build $APP_DIR/package.json .
 
 FROM base as app
 COPY --from=installed $APP_DIR .
-CMD ["npm", "start"]
+CMD npm start
