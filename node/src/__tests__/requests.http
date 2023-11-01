@@ -9,6 +9,6 @@ POST {{users}}
 Content-Type: application/json
 
 {
-  "email": "test1@test.com",
+  "email": "test@test.com",
   "password": "password"
 }
