@@ -35,13 +35,13 @@ describe("Unit Testing | UsersController", () => {
     });
   });
 
-  describe("feature: create user", () => {
-    describe("scenario: create is sucessfull", () => {
+  describe("feature: insert user", () => {
+    describe("scenario: insert is sucessfull", () => {
       it(`given request has valid body
-          when I try to create a user
+          when I try to insert a user
           then I should respond with status CREATED
-            and location containing the created user id
-            and json of the created user`, async () => {
+            and location containing the inserted user id
+            and json of the inserted user`, async () => {
         let newUser: InsertUserRequest;
         let request: Request;
         let userResponse: UserResponse;
@@ -75,9 +75,9 @@ describe("Unit Testing | UsersController", () => {
       });
     });
 
-    describe("scenario: create results in error", () => {
+    describe("scenario: insert results in error", () => {
       it(`given an error occurs
-          when I try to create a user
+          when I try to insert a user
           then I should call next with the error`, async () => {
         let request: Request;
         let error: Error;
