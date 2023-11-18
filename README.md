@@ -1,4 +1,6 @@
-# Node.js User Registration Service [ARCHIVED]
+# Node.js User Registration Service
+
+# This repository is ARCHIVED
 
 <div align="center">
   <a href="https://whimsical.com/container-FdLdyNat76HJaGWLF7Zx1h">
