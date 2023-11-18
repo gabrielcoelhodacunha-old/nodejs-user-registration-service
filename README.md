@@ -1,4 +1,4 @@
-# Node.js User Registration Service
+# Node.js User Registration Service [ARCHIVED]
 
 <div align="center">
   <a href="https://whimsical.com/container-FdLdyNat76HJaGWLF7Zx1h">
